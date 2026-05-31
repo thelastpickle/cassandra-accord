@@ -89,12 +89,22 @@ publishing {
           developerConnection = 'scm:https://gitbox.apache.org/repos/asf/cassandra-accord.git'
           url = 'https://gitbox.apache.org/repos/asf?p=cassandra-accord.git;a=tree'
         }
+        organization {
+          name = 'The Apache Software Foundation'
+          url = 'https://www.apache.org/'
+        }
       }
       // This is a hack to remove accord from the dependency list as this breaks Apache Cassandra
       // This is a bug with Gradle that was supposed to be fixed in 8.0 but does not seem to work
       // see https://github.com/gradle/gradle/commit/6e596c638dff59dfa06032a7e7a3974275ddb3e1
       pom.withXml {
         asNode().dependencies.'*'.findAll() { it.artifactId.text() == accord_artifactId }.each() { it.parent().remove(it) }
+        
+        // Add Apache parent POM
+        def parentNode = asNode().appendNode('parent')
+        parentNode.appendNode('groupId', 'org.apache')
+        parentNode.appendNode('artifactId', 'apache')
+        parentNode.appendNode('version', '31')
       }
       from components.java
       // don't need to add javadoc or sources as they were added already in the java block
